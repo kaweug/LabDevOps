@@ -1,8 +1,31 @@
 const express = require('express');
 const redis = require('redis');
-const process = require('process')
+const process = require('process');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const keys = require('./keys.js');
 
 const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+console.log(keys);
+
+const { Pool } = require('pg');
+const pgClient = new Pool({
+  user: keys.pgUser,
+  host: keys.pgHost,
+  database: keys.pgDatabase,
+  password: keys.pgPassword,
+  port: keys.pgPort
+});
+
+pgClient.on('error', () => console.log('Lost PG connection'));
+
+pgClient
+  .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+  .catch(err => console.log(err));
+
 const client = redis.createClient({
   host: 'redis',
   port: 6379
@@ -20,7 +43,7 @@ app.get('/', (req, resp) => {
   });
 });
 
-app.listen(8080, () => {
+app.listen(8080, err => {
   console.log("Listening on port 8080");
 });
 
