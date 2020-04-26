@@ -5,25 +5,50 @@ services:
     image: redis
   postgres:
     image: postgres
+    hostname: ${PGHOST}
     environment:
-      POSTGRES_DB: labDb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${PGDATABASE}
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
     ports:
-      - "5432:5432"
+      - ${PGPORT}:${PGPORT}
   backend:
     image: backend
+    hostname: backend
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
     environment:
-      PGPORT: 5432
-      PGHOST: postgres
-      PGDATABASE: labDb
-      PGUSER: postgres
-      PGPASSWORD: postgres
+      PGPORT: ${PGPORT}
+      PGUSER: ${PGUSER}
+      PGHOST: ${PGHOST}
+      PGDATABASE: ${PGDATABASE}
+      PGPASSWORD: ${PGPASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    volumes:
+      - /opt/app/node_modules
+      - ./backend:/opt/app
     ports:
-      - "90:8080"
+      - "5000:5000"
     depends_on:
       - postgres
       - redis
+  frontend:
+    image: frontend
+    hostname: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /opt/app/node_modules
+      - ./frontend:/opt/app
+    tty: true
+  nginx:
+    image: nginx
+    hostname: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - 8080:80

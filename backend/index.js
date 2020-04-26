@@ -4,6 +4,9 @@ const process = require('process');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const keys = require('./keys.js');
+const port = 5000;
+
+//sleep(4000);
 
 const app = express();
 app.use(cors());
@@ -23,28 +26,65 @@ const pgClient = new Pool({
 pgClient.on('error', () => console.log('Lost PG connection'));
 
 pgClient
-  .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+  .query('CREATE TABLE IF NOT EXISTS values (key VARCHAR(10) PRIMARY KEY, avg NUMERIC(5,2))')
   .catch(err => console.log(err));
 
 const client = redis.createClient({
-  host: 'redis',
-  port: 6379
+  host: keys.redisHost,
+  port: keys.redisPort,
+  retry_strategy: () => 3000
 });
 
 client.set('counter', 0);
 
 app.get('/', (req, resp) => {
-
-  process.exit(0);
-
   client.get('counter', (err, counter_value)  => {
     resp.send('Counter: ' + counter_value);
     client.set('counter', parseInt(counter_value) + 1);
   });
 });
 
-app.listen(8080, err => {
-  console.log("Listening on port 8080");
+app.listen(port, err => {
+  console.log(`Listening on port ${port}`);
+});
+
+app.get('/fuelAvg', (req, resp) => {
+  const key = req.query.distance + "X" + req.query.fuel;
+  const readQuery = {
+    name: 'get-acg',
+    text: 'SELECT avg FROM values WHERE key =$1::text',
+    values: [key],
+    rowMode: 'array',
+  }
+
+
+  pgClient.query(readQuery, (err, res) => {
+      if (err) throw err
+
+      if(res.rows.length) {
+        resp.send((res.rows[0][0] + "").substring(0, 10));
+      } else {
+        const resultAvg = (parseFloat(req.query.fuel) / parseFloat(req.query.distance)).toFixed(2);
+
+        if(resultAvg) {
+          const insertQuery = {
+            name: 'put-avg',
+            text: 'INSERT INTO values VALUES ($1::varchar, $2::numeric)',
+            values: [key, resultAvg],
+            rowMode: 'array',
+          }
+          pgClient.query(insertQuery, (err, res) => {
+            if (err) throw err
+            console.log(res);
+          });
+        }
+        resp.send(resultAvg);
+      }
+    });
+});
+
+app.get('/api', (req, resp) => {
+  resp.send('Hello from backend!');
 });
 
 
@@ -85,4 +125,12 @@ function gcd(x, y) {
     x = t;
   }
   return x;
+}
+
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
 }
