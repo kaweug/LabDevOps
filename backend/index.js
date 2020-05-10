@@ -83,6 +83,29 @@ app.get('/fuelAvg', (req, resp) => {
     });
 });
 
+app.get('/values', (req, resp) => {
+  const readQuery = {
+    name: 'get-acg',
+    text: 'SELECT * FROM values',
+    values: [],
+    rowMode: 'array',
+  }
+
+  pgClient.query(readQuery, (err, res) => {
+      if (err) throw err
+
+      if(res.rows.length) {
+        response = "<!DOCTYPE html><html lang=\"en\"><body>";
+        for (const row of res.rows) {
+            response += row[0] + " - " + row[1] + "<br/>";
+        }
+        resp.send(response + "</body></html>");
+      } else {
+        resp.send("no values");
+      }
+    });
+});
+
 app.get('/api', (req, resp) => {
   resp.send('Hello from backend!');
 });

@@ -1,8 +1,11 @@
 Notes:
 
 build images:
+
 docker build -t backend -f backend/Dockerfile.dev backend
+
 docker build -t frontend -f frontend/Dockerfile.dev frontend
+
 docker build -t nginx -f nginx/Dockerfile.dev nginx
 
 start postgres & redis:
