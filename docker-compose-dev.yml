@@ -13,8 +13,11 @@ services:
     ports:
       - ${PGPORT}:${PGPORT}
   backend:
-    image: febot50806/backend
+    image: backend
     hostname: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
     environment:
       PGPORT: ${PGPORT}
       PGUSER: ${PGUSER}
@@ -26,15 +29,20 @@ services:
     volumes:
       - /opt/app/node_modules
       - ./backend:/opt/app
+    ports:
+      - "5000:5000"
     depends_on:
       - postgres
       - redis
   frontend:
-    image: febot50806/frontend
+    image: frontend
     hostname: frontend
     build:
       context: ./frontend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /opt/app/node_modules
+      - ./frontend:/opt/app
     tty: true
   nginx:
     image: nginx-app

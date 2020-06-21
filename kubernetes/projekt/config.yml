@@ -1,0 +1,15 @@
+apiVersion: v1
+
+kind: ConfigMap
+
+metadata:
+  name: myapp-config
+  namespace: cube
+
+data:
+  PGUSER: "postgres"
+  PGPORT: "5432"
+  PGHOST: "postgres-service"
+  REDIS_PORT: "6379"
+  REDIS_HOST: "redis-service"
+  PGDATABASE: "myDB"

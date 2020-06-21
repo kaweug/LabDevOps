@@ -17,6 +17,8 @@ docker-compose up backend frontend
 start nginx:
 docker-compose up nginx
 
+docker-compose -f docker-compose-dev.yml down
+
 
 Kubernetes:
 
@@ -54,13 +56,17 @@ kubectl create namespace cube
 
 kubectl apply --namespace=cube -f uuid_app.yml
 
-kubectl apply -f nodeport.yml
+kubectl apply -f nodeport.yml  LUB kubectl apply -f clusterip.yml
 
 kubectl apply -f redis_app.yml
 
 kubectl apply -f redis_service.yml
 
 kubectl apply -f dnsutils.yml
+
+IF INGRESS: kubectl apply -f ingress.yml
+
+USE: http://localhost/api (ingress) lub http://localhost:30005 (nodeport)
 
 kubectl exec --namespace cube -ti dnsutils -- nslookup kubernetes.default
 

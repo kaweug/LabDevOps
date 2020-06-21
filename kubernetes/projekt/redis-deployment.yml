@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: redis-deployment
+  namespace: cube
+  labels:
+    app: my-redis
+    type: cache
+spec:
+  template:
+    metadata:
+      name: redis-pod
+      labels:
+        app: my-redis
+        type: cache
+    spec:
+      containers:
+        - name: redis-container
+          image: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-redis
+      type: cache

@@ -4,10 +4,12 @@ const process = require('process');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const keys = require('./keys.js');
+const {v4: uuidv4} = require('uuid');
 const port = 5000;
 
 //sleep(4000);
 
+const appId = uuidv4();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -56,7 +58,6 @@ app.get('/fuelAvg', (req, resp) => {
     values: [key],
     rowMode: 'array',
   }
-
 
   pgClient.query(readQuery, (err, res) => {
       if (err) throw err
@@ -110,6 +111,14 @@ app.get('/api', (req, resp) => {
   resp.send('Hello from backend!');
 });
 
+client.set(appId, 0);
+
+app.get('/uuid', (req, resp) => {
+  client.get(appId, (err, counter_value)  => {
+    resp.send(`[${appId}] Hello from uuid-backend service. This instance counter: ${counter_value}`);
+    client.set(appId, parseInt(counter_value) + 1);
+  });
+});
 
 app.get('/gcd', (req, resp) => {
     num1 = parseInt(req.query.num1)
