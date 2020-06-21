@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: backend-deployment
+  namespace: cube
+  labels:
+    app: backend-app
+    type: backend
+spec:
+  template:
+    metadata:
+      name: backend-app-pod
+      labels:
+        app: backend-app
+        type: backend
+    spec:
+      containers:
+        - name: backend-container
+          image: febot50806/backend:latest
+          imagePullPolicy: Always
+          env:
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: myapp-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: myapp-config
+                  key: REDIS_PORT
+            - name: PGPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: myapp-config
+                  key: PGPORT
+            - name: PGHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: myapp-config
+                  key: PGHOST
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: myapp-config
+                  key: PGUSER
+            - name: PGDATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: myapp-config
+                  key: PGDATABASE
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: PGPASSWORD
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-app
+      type: backend

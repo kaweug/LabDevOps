@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: frontend-deployment
+  namespace: cube
+  labels:
+    app: frontend-app
+    type: frontend
+spec:
+  template:
+    metadata:
+      name: frontend-app-pod
+      labels:
+        app: frontend-app
+        type: frontend
+    spec:
+      containers:
+        - name: frontend-container
+          image: febot50806/frontend:latest
+          imagePullPolicy: Always
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend-app
+      type: frontend
