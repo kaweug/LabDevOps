@@ -86,7 +86,7 @@ app.get('/fuelAvg', (req, resp) => {
 
 app.get('/values', (req, resp) => {
   const readQuery = {
-    name: 'get-acg',
+    name: 'get-values',
     text: 'SELECT * FROM values',
     values: [],
     rowMode: 'array',
