@@ -15,6 +15,9 @@ services:
   backend:
     image: febot50806/backend
     hostname: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
     environment:
       PGPORT: ${PGPORT}
       PGUSER: ${PGUSER}
